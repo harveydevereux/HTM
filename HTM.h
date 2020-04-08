@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <iostream>
 using namespace std;
 
 template <class T>
@@ -68,8 +69,8 @@ public:
     this->z = v3;
     this->dimension = 3;
   };
-  Trixel(string id, vector<T> x, vector<T> y, vector<T> z, size_t dimension, Trixel * parent = nullptr,children = vector< Trixel <T> * >(4,nullptr))
-  : ID(""), parent(parent), children(children);
+  Trixel(string id, vector<T> x, vector<T> y, vector<T> z, size_t dimension, Trixel * parent = nullptr, vector< Trixel <T> * > children = vector< Trixel <T> * >(4,nullptr))
+  : ID(""), parent(parent), children(children)
   {
     this->x = x;
     this->y = y;
@@ -79,13 +80,19 @@ public:
   string getID(){
     return this->ID;
   }
-  void setParent(Trixel<T> trix){
+  void setParent(Trixel<T> & trix){
     this->parent = &trix;
   }
-  void setChildren(vector< Trixel<T> > trix){
+  void setChildren(vector< Trixel<T> > & trix){
     for (int i = 0; i < 4; i++){
       this->children[i] = &trix[i];
     }
+  }
+  vector< Trixel <T> * > getChildren(){
+    return this->children;
+  }
+  void setDimension(size_t t){
+    this->dimension = t;
   }
 };
 
@@ -151,9 +158,10 @@ uint8_t rayIn3DTriangle(vector<T> p, vector<T> q, Triangle<T2> tri){
 }
 
 template <class T>
-vector< Trixel <T> > subdivideTrixel(Trixel <T> trix){
+vector< Trixel <T> > subdivideTrixel(Trixel <T> & trix){
   vector< vector<T> > v = trix.getVertices();
   size_t d = trix.getDimension();
+  cout << "dim " << d << endl;
   vector<double> w0(d,0);
   vector<double> w1(d,0);
   vector<double> w2(d,0);
@@ -196,20 +204,105 @@ vector< Trixel <T> > subdivideTrixel(Trixel <T> trix){
   Trixel <T> T2(id+"1",v1,vector<T>(w0),vector<T>(w2),d);
   Trixel <T> T3(id+"2",v2,vector<T>(w1),vector<T>(w0),d);
   Trixel <T> T4(id+"3",vector<T>(w0),vector<T>(w1),vector<T>(w2),d);
-
-  return vector< Trixel <T> > u {T1,T2,T3,T4};
+  vector< Trixel <T> > u {T1,T2,T3,T4};
+  return u;
 }
 
-template <class T>
 class HTM{
 private:
-  size_t size;
-  vector< Trixel <T> > Mesh; // vector of the 8 foundational trixels
+  size_t depth;
+  vector< Trixel <double> > Mesh; // vector of the 8 foundational trixels
+  vector< Trixel <double> * > trixelsAtBase(){
+    vector< Trixel <double> * > leaves;
+    vector < Trixel <double> * > stack;
+    for (int i = 0; i < 8; i++){
+      Trixel <double> * ptr = &(this->Mesh[i]);
+      stack.push_back(ptr);
+    }
+    while (stack.size() > 0){
+      Trixel <double> * ptr = stack[stack.size()-1];
+      stack.pop_back();
+      if ( (ptr->getChildren()).size() == 0 ){
+        leaves.push_back(ptr);
+        continue;
+      }
+      bool cont = false;
+      for (int i = 0; i < (ptr->getChildren()).size(); i++){
+        if ((ptr->getChildren())[i] == nullptr){
+          leaves.push_back(ptr);
+          cont = true;
+          break;
+        }
+      }
+      if (cont){
+        continue;
+      }
+      else{
+        for (int i = 0; i < (ptr->getChildren()).size(); i++){
+          stack.push_back(ptr->getChildren()[i]);
+        }
+      }
+    }
+    cout << "leaves: " << leaves.size() << endl;
+    cout << "leaf dim: ";
+    for (int j = 0; j < leaves.size(); j++){
+      cout << leaves[j]->getDimension() << ", ";
+    }
+    cout << endl;
+    return leaves;
+  }
 public:
   HTM()
-  : size(0), Mesh(vector< Trixel <T> >(0))
+  : depth(0), Mesh(vector< Trixel <double> >(0))
   {};
-  void BuildHTM(size_t depth){
+  size_t size(){
+    return this->depth;
+  }
+  void build(size_t depth = 0){
+    // depth 0 hard coded
+    vector <double> v0 {0.0,0.0,1.0};
+    vector <double> v1 {1.0,0.0,0.0};
+    vector <double> v2 {0.0,1.0,0.0};
+    vector <double> v3 {-1.0,0.0,0.0};
+    vector <double> v4 {0.0,-1.0,0.0};
+    vector <double> v5 {0.0,0.0,-1.0};
 
+    Trixel <double> T1("S0",v1,v5,v2,3);
+    Trixel <double> T2("N0",v1,v0,v4,3);
+    Trixel <double> T3("S1",v2,v5,v3,3);
+    Trixel <double> T4("N1",v4,v0,v3,3);
+    Trixel <double> T5("S2",v3,v5,v4,3);
+    Trixel <double> T6("N2",v3,v0,v2,3);
+    Trixel <double> T7("S3",v4,v5,v1,3);
+    Trixel <double> T8("N3",v2,v0,v1,3);
+    vector< Trixel <double> > u {T1,T2,T3,T4,T5,T6,T7,T8};
+    this->Mesh = u;
+    this->depth = depth;
+    if (depth == 0){
+      return;
+    }
+    for (int i = 0; i < depth; i++){
+      cout << "i = " << i << endl;
+      vector< Trixel<double> * > leaves = this->trixelsAtBase();
+      for (int j = 0; j < leaves.size(); j++){
+        vector< Trixel <double> > newTrixels = subdivideTrixel(*(leaves[j]));
+        for (int k = 0; k < newTrixels.size(); k++){
+          cout << newTrixels[k].getDimension() << endl;
+          newTrixels[k].setParent(*(leaves[j]));
+        }
+        leaves[j]->setChildren(newTrixels);
+        cout << newTrixels.size() << endl;
+      }
+    }
+    return;
+  }
+  vector< Trixel <double> > leaves(){
+    vector< Trixel <double> * > leaves_ptrs = this->trixelsAtBase();
+    vector< Trixel <double> > l;
+    cout << leaves_ptrs.size() << endl;
+    for (int i = 0; i < leaves_ptrs.size(); i++){
+      l.push_back(*(leaves_ptrs[i]));
+    }
+    return l;
   }
 };

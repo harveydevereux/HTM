@@ -14,5 +14,13 @@ int main(){
     }
     cout << endl;
   };
+
+  HTM htm;
+  htm.build();
+  cout << htm.size() << endl;
+  htm.build(2);
+  cout << htm.size() << endl;
+  //vector< Trixel <double> > leaves = htm.leaves();
   return 0;
+
 }
