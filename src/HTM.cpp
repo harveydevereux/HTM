@@ -16,11 +16,16 @@ int main(){
   };
 
   HTM htm;
-  htm.build();
-  cout << htm.size() << endl;
+  //htm.build();
+  //cout << htm.size() << endl;
   htm.build(2);
   cout << htm.size() << endl;
-  //vector< Trixel <double> > leaves = htm.leaves();
+  vector< Trixel <double> > leaves = htm.leaves();
+  cout << leaves.size() << endl;
+  for (int i = 0; i < leaves.size(); i++){
+    cout << leaves[i].getID() << ", ";
+  }
+  cout << endl;
   return 0;
 
 }

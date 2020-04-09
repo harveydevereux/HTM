@@ -1,6 +1,4 @@
-#include "HTM.h"
-#include <random>
-#include <chrono>
+#include "../src/HTM.h"
 const double tol = 1e-6;
 
 #define CATCH_CONFIG_MAIN
@@ -23,6 +21,26 @@ SCENARIO("Testing if rays pass through triangles", "[rayIn3DTriangle]"){
         vector<double> k {-0.5,-0.5,0};
         REQUIRE(!(rayIn3DTriangle <double, int>(p,k,tri)));
       }
+    }
+  }
+}
+
+SCENARIO("building an HTM of depth d"){
+  GIVEN("depths of 0,1,2,3,4 and 5"){
+    vector<int> depth {0,1,2,3,4,5};
+    THEN("the HTM should have 8x4^(d) Trixels: [8,32,128,512,2048,8192]"){
+      vector<int> theory {8,32,128,512,2048,8192};
+      bool correct = true;
+      for (int i = 0; i < depth.size(); i++){
+        HTM htm;
+        htm.build(depth[i]);
+        vector< Trixel <double> > leaves = htm.leaves();
+        if (leaves.size() != theory[i]){
+          correct = false;
+          break;
+        }
+      }
+      REQUIRE(correct);
     }
   }
 }
