@@ -51,6 +51,13 @@ public:
   size_t getDimension(){
     return this->dimension;
   }
+  double area(){
+  double xy_dot_xz = (this->y[0]-this->x[0])*(this->z[0]-this->x[0]) + (this->y[1]-this->x[1])*(this->z[1]-this->x[1]) + (this->y[2]-this->x[2])*(this->z[2]-this->x[2]);
+  double norm_xy = sqrt((this->y[0]-this->x[0])*(this->y[0]-this->x[0]) + (this->y[1]-this->x[1])*(this->y[1]-this->x[1]) + (this->y[2]-this->x[2])*(this->y[2]-this->x[2]));
+  double norm_xz = sqrt((this->z[0]-this->x[0])*(this->z[0]-this->x[0]) + (this->z[1]-this->x[1])*(this->z[1]-this->x[1]) + (this->z[2]-this->x[2])*(this->z[2]-this->x[2]));
+  double cosTheta = xy_dot_xz / (norm_xy*norm_xz);
+  return 0.5 * norm_xy*norm_xz*sqrt(1.0-cosTheta*cosTheta);
+  }
 };
 
 template <class T>

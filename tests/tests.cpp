@@ -44,3 +44,15 @@ SCENARIO("building an HTM of depth d"){
     }
   }
 }
+
+SCENARIO("triangle area"){
+  GIVEN("a triangle with vertices [0,0,0],[1,0,0], and [0,1,0]"){
+    vector<double> x {0,0,0};
+    vector<double> y {0,1,0};
+    vector<double> z {1,0,0};
+    Trixel <double> t("",x,y,z,3);
+    THEN("the are is 0.5"){
+      REQUIRE(t.area()==0.5);
+    }
+  }
+}

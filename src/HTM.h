@@ -5,6 +5,7 @@
 // https://arxiv.org/pdf/cs/0701164.pdf
 #include "Trixel.h"
 using namespace std;
+#include <iostream>
 class HTM{
 private:
   size_t depth;
@@ -39,9 +40,9 @@ private:
     }
     return leaves;
   }
-public:
-  HTM()
-  : depth(0), Mesh(vector< Trixel <double> >(0))
+public:                                                                         // the recursive search is marginally slower
+  HTM()                                                                         // than using the fact the leaves are the
+  : depth(0), Mesh(vector< Trixel <double> >(0))                                // Mesh.size()-8*pow(4,depth-1) to Mesh.size() nodes
   {
     // depth 0 hard coded
     vector <double> v0 {0.0,0.0,1.0};
@@ -71,16 +72,17 @@ public:
       return;
     }
     for (int i = 0; i < depth; i++){
-      vector<int> leaves = this->leafIndices();
-      for (int j = 0; j < leaves.size(); j++){
-        vector< Trixel <double> > newTrixels = subdivideTrixel <double> (this->Mesh[leaves[j]]);
+      int start = this->Mesh.size()-8*pow(4,i);
+      int end = this->Mesh.size();
+      for (int j = start; j < end; j++){
+        vector< Trixel <double> > newTrixels = subdivideTrixel <double> (this->Mesh[j]);
         vector<int> children(4,0);
         for (int k = 0; k < newTrixels.size(); k++){
-          newTrixels[k].setParent(leaves[j]);
+          newTrixels[k].setParent(j);
           this->Mesh.push_back(newTrixels[k]);
           children[k] = this->Mesh.size()-1;
         }
-        this->Mesh[leaves[j]].setChildren(children);
+        this->Mesh[j].setChildren(children);
       }
     }
     return;
