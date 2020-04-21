@@ -68,3 +68,4 @@ for i in 0:4
 end
 plot!(xaxis=nothing,yaxis=nothing,zaxis=nothing)
 savefig(p,"ExampleHTMs.pdf")
+savefig(p,"ExampleHTMs.png")
