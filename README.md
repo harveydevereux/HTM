@@ -11,6 +11,8 @@ HTM htm
 htm.build(i);
 ```
 
+![Example Builds](https://github.com/harveydevereux/HTM/blob/master/tests/ExampleHTMs.png)
+
 leaves can be accessed as a vector of Trixels
 
 ```c++
