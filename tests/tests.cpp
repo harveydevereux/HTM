@@ -51,7 +51,7 @@ SCENARIO("triangle area"){
     vector<double> y {0,1,0};
     vector<double> z {1,0,0};
     Trixel <double> t("",x,y,z,3);
-    THEN("the are is 0.5"){
+    THEN("the area is 0.5"){
       REQUIRE(t.area()==0.5);
     }
   }

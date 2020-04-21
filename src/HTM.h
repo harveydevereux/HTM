@@ -6,15 +6,17 @@
 #include "Trixel.h"
 using namespace std;
 #include <iostream>
+#include <fstream>
+#include <string>
 class HTM{
 private:
   size_t depth;
   vector< Trixel <double> > Mesh; // vector of the trixels
   vector<int> leafIndices(){                                                    // returns the integer indexes which correspond
     vector<int> leaves;                                                         // to the current leaf nodes in the HTM
-    vector<int> stack {0,1,2,3,4,5,6,7};
-    while (stack.size() > 0){
-      int ptr = stack[stack.size()-1];
+    vector<int> stack {0,1,2,3,4,5,6,7};                                        // the recursive search is marginally slower
+    while (stack.size() > 0){                                                   // than using the fact the leaves are the
+      int ptr = stack[stack.size()-1];                                          // Mesh.size()-8*pow(4,depth-1) to Mesh.size() nodes
       stack.pop_back();
       Trixel <double> trix = this->Mesh[ptr];
       if ( (trix.getChildren()).size() == 0 ){
@@ -40,9 +42,9 @@ private:
     }
     return leaves;
   }
-public:                                                                         // the recursive search is marginally slower
-  HTM()                                                                         // than using the fact the leaves are the
-  : depth(0), Mesh(vector< Trixel <double> >(0))                                // Mesh.size()-8*pow(4,depth-1) to Mesh.size() nodes
+public:
+  HTM()
+  : depth(0), Mesh(vector< Trixel <double> >(0))
   {
     // depth 0 hard coded
     vector <double> v0 {0.0,0.0,1.0};
@@ -94,5 +96,27 @@ public:                                                                         
       l.push_back(this->Mesh[i]);
     }
     return l;
+  }
+  void writeLeaves(const string & filename){                                    // output a csv where each trixel is 9 floats followed
+    ofstream output;                                                            // by it's name
+    output.open(filename);
+    if (output.is_open()){
+      vector<int> leaves = this->leafIndices();
+      for (int i = 0; i < leaves.size(); i++){
+        Trixel <double> trix = Mesh[leaves[i]];
+        vector< vector<double> > v = trix.getVertices();
+        for (int j = 0; j < v.size(); j++){
+          for (int k = 0; k < v[j].size(); k++){
+            output << v[j][k] << ",";
+          }
+        }
+        output << trix.getID() << endl;
+      }
+      output.close();
+    }
+    else{
+      cout << "Error in reading output file: " << filename << endl;
+      exit (EXIT_FAILURE);
+    }
   }
 };

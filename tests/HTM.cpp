@@ -13,7 +13,7 @@ int main(){
     start = clock();
     htm.build(i);
     times[i] = ( clock() - start ) / (double) CLOCKS_PER_SEC;
-    cout << "Ellapsed Time: " << times[i] << endl;
+    cout << "Depth: " << i << ", Ellapsed Time: " << times[i] << endl;
     vector< Trixel <double> > leaves = htm.leaves();
     vector<double> areas(leaves.size(),0.0);
     for (int j = 0; j < leaves.size(); j++){
@@ -41,14 +41,14 @@ int main(){
   }
   output.close();
 
-  for (int i = 0; i < 3; i++){
+  for (int i = 0; i < 5; i++){
     HTM htm;
     htm.build(i);
     vector< Trixel <double> > leaves = htm.leaves();
-    for (int j = 0; j < leaves.size(); j++){
-      cout << leaves[j].getID() << ", ";
-    }
-    cout << endl;
+    string filename = "HTM-";
+    filename += to_string(i);
+    filename += ".txt";
+    htm.writeLeaves(filename);
   }
   return 0;
 }
